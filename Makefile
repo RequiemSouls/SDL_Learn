@@ -1,17 +1,14 @@
 cc = clang
 
-SDL_LIB = -L/usr/lib/i386-linux-gnu -lSDL2 -Wl,-rpath=/usr/local/lib
-SDL_INCLUDE = -I/usr/include/SDL2
-EXE = SDL_Learn
-OUT_DIR = ./bin
+CFLAGS = -g -Wall -I/usr/include/SDL2
+LDFLAGS = -L/usr/lib/i386-linux-gnu -lSDL2
 
-all : $(EXE)
+SDL_Learn := main.c
 
-$(EXE) : main.o
-	$(cc) $< $(SDL_LIB) -o $(OUT_DIR)$@
+all : $(SDL_Learn) sdlLearn
 
-main.o : main.c
-	$(cc) -c -g $(SDL_INCLUDE) $< -o $(OUT_DIR)$@
+sdlLearn :
+	$(cc) $(CFLAGS) -o $@ $(SDL_Learn) $(LDFLAGS)
 
 clean :
-	rm -rf $(OUT_DIR)
+	rm -f SDL_Learn
