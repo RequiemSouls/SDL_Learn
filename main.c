@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include "SDL.h"
 
-bool init();
-bool loadMedia();
-void close();
+bool sh_init();
+bool hz_loadMedia();
+void sh_close();
 
 int SCREEN_WIDTH = 400;
 int SCREEN_HEIGHT = 300;
@@ -22,14 +22,14 @@ int main(int argc, char* args[])
     bool quit = false;
     SDL_Event e;
     //Start up SDL and create window
-    if (!init())
+    if (!sh_init())
     {
         printf("Failed to load initialize!\n");
     }
     else
     {
         //Load media
-        if (!loadMedia())
+        if (!hz_loadMedia())
         {
             printf("Failed to load media!\n");
         }
@@ -37,7 +37,6 @@ int main(int argc, char* args[])
         {
             while (!quit)
             {
-                quit = true;
                 while(SDL_PollEvent(&e) != 0)
                 {
                     if (e.type == SDL_QUIT)
@@ -56,12 +55,12 @@ int main(int argc, char* args[])
     }
 
     //Free resources and close SDL
-    close();
+    sh_close();
 
     return 0;
 }
 
-bool init()
+bool sh_init()
 {
     bool success = true;
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -86,7 +85,7 @@ bool init()
     return success;
 }
 
-bool loadMedia()
+bool hz_loadMedia()
 {
     //Loading success flag
     bool success = true;
@@ -102,7 +101,7 @@ bool loadMedia()
     return success;
 }
 
-void close()
+void sh_close()
 {
     SDL_FreeSurface( gHelloWorld );
     gHelloWorld = NULL;
