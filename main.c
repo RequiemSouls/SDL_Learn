@@ -4,11 +4,23 @@
 
 bool sh_init();
 bool sh_loadMedia();
+SDL_Surface* loadSurface(char* path);
 void sh_close();
 
 int SCREEN_WIDTH = 400;
 int SCREEN_HEIGHT = 300;
 
+enum KeyPressSurface
+{
+    KEY_PRESS_SURFACE_DEFAULT,
+    KEY_PRESS_SURFACE_UP,
+    KEY_PRESS_SURFACE_DOWN,
+    KEY_PRESS_SURFACE_LEFT,
+    KEY_PRESS_SURFACE_RIGHT,
+    KEY_PRESS_SURFACE_TOTAL
+};
+
+SDL_Surface* gKeySurface[KEY_PRESS_SURFACE_TOTAL];
 //The window we'll rendering to
 SDL_Window* gWindow = NULL;
 
@@ -16,7 +28,7 @@ SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
 
 //The image we will load and show on the screen
-SDL_Surface* gHelloWorld = NULL;
+SDL_Surface* gCurrentSurface = NULL;
 int main(int argc, char* args[])
 {
     bool quit = false;
@@ -29,12 +41,13 @@ int main(int argc, char* args[])
     else
     {
         //Load media
-        if (!hz_loadMedia())
+        if (!sh_loadMedia())
         {
             printf("Failed to load media!\n");
         }
         else
         {
+            gCurrentSurface = gKeySurface[KEY_PRESS_SURFACE_DEFAULT];
             while (!quit)
             {
                 while(SDL_PollEvent(&e) != 0)
@@ -43,9 +56,30 @@ int main(int argc, char* args[])
                     {
                         quit = true;
                     }
+                    else if (e.type == SDL_KEYDOWN)
+                    {
+                        switch (e.key.keysym.sym)
+                        {
+                        case SDLK_UP:
+                            gCurrentSurface = gKeySurface[KEY_PRESS_SURFACE_UP];
+                            break;
+                        case SDLK_DOWN:
+                            gCurrentSurface = gKeySurface[KEY_PRESS_SURFACE_DOWN];
+                            break;
+                        case SDLK_LEFT:
+                            gCurrentSurface = gKeySurface[KEY_PRESS_SURFACE_LEFT];
+                            break;
+                        case SDLK_RIGHT:
+                            gCurrentSurface = gKeySurface[KEY_PRESS_SURFACE_RIGHT];
+                            break;
+                        default:
+                            gCurrentSurface = gKeySurface[KEY_PRESS_SURFACE_DEFAULT];
+                            break;
+                        }
+                    }
                 }
                 //Apply the image
-                SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
+                SDL_BlitSurface(gCurrentSurface, NULL, gScreenSurface, NULL);
                 //Update the surface
                 SDL_UpdateWindowSurface(gWindow);
                 //Wait two seconds;
@@ -87,24 +121,43 @@ bool sh_init()
 
 bool sh_loadMedia()
 {
-    //Loading success flag
-    bool success = true;
-
     //Load splash image
-    char* imgPath = "assert/preview.bmp";
-    gHelloWorld = SDL_LoadBMP(imgPath);
-    if (gHelloWorld == NULL)
+    gKeySurface[KEY_PRESS_SURFACE_DEFAULT] = loadSurface("assert/press.bmp");
+    gKeySurface[KEY_PRESS_SURFACE_UP] = loadSurface("assert/up.bmp");
+    gKeySurface[KEY_PRESS_SURFACE_DOWN] = loadSurface("assert/down.bmp");
+    gKeySurface[KEY_PRESS_SURFACE_LEFT] = loadSurface("assert/left.bmp");
+    gKeySurface[KEY_PRESS_SURFACE_RIGHT] = loadSurface("assert/right.bmp");
+    if (gKeySurface[KEY_PRESS_SURFACE_DEFAULT] == NULL
+        || gKeySurface[KEY_PRESS_SURFACE_UP] == NULL
+        || gKeySurface[KEY_PRESS_SURFACE_DOWN] == NULL
+        || gKeySurface[KEY_PRESS_SURFACE_LEFT] == NULL
+        || gKeySurface[KEY_PRESS_SURFACE_RIGHT] == NULL)
     {
-        printf("Unable to load image %s! SDL Error: %s\n", imgPath, SDL_GetError());
-        success = false;
+        printf("Failed to load image!");
+        return false;
     }
-    return success;
+    return true;
+}
+
+SDL_Surface* loadSurface(char* path)
+{
+    SDL_Surface* loadedSurface = SDL_LoadBMP(path);
+    if (loadedSurface == NULL)
+    {
+        printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
+    }
+
+    return loadedSurface;
 }
 
 void sh_close()
 {
-    SDL_FreeSurface( gHelloWorld );
-    gHelloWorld = NULL;
+    for (int surfaceIndex = 0;
+             surfaceIndex < KEY_PRESS_SURFACE_TOTAL; surfaceIndex++)
+    {
+        SDL_FreeSurface(gKeySurface[surfaceIndex]);
+        gKeySurface[surfaceIndex] = NULL;
+    }
 
     SDL_DestroyWindow( gWindow );
     gWindow = NULL;

@@ -17,14 +17,14 @@ all : $(SYS)
 linux : OS := LINUX
 linux : CFLAGS += -I/usr/include/SDL2
 linux : LDFLAGS += -L/usr/lib/i386-linux-gnu -lSDL2
-linux : $(SDL_Learn) sdlLearn
+linux : sdlLearn
 
 macosx : OS := MACOSX
 macosx : CFLAGS += -I/usr/local/include/SDL2
 macosx : LDFLAGS += -L/usr/local/lib -lSDL2
-macosx : $(SDL_Learn) sdlLearn
+macosx : sdlLearn
 
-sdlLearn :
+sdlLearn : $(SDL_Learn)
 	$(cc) $(CFLAGS) -o $@ $(SDL_Learn) $(LDFLAGS)
 
 clean :
