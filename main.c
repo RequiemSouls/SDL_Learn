@@ -3,7 +3,7 @@
 #include "SDL.h"
 
 bool sh_init();
-bool hz_loadMedia();
+bool sh_loadMedia();
 void sh_close();
 
 int SCREEN_WIDTH = 400;
@@ -85,7 +85,7 @@ bool sh_init()
     return success;
 }
 
-bool hz_loadMedia()
+bool sh_loadMedia()
 {
     //Loading success flag
     bool success = true;
